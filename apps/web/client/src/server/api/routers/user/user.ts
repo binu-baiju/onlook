@@ -16,13 +16,17 @@ export const userRouter = createTRPCRouter({
         });
 
         const { displayName, firstName, lastName } = getUserName(authUser);
+        const authAvatarUrl: string | undefined =
+            authUser.user_metadata.avatar_url ||
+            authUser.user_metadata.avatarUrl ||
+            authUser.user_metadata.picture;
         const userData = user ? toUser({
             ...user,
             firstName: user.firstName ?? firstName,
             lastName: user.lastName ?? lastName,
             displayName: user.displayName ?? displayName,
             email: user.email ?? authUser.email,
-            avatarUrl: user.avatarUrl ?? authUser.user_metadata.avatarUrl,
+            avatarUrl: user.avatarUrl ?? authAvatarUrl ?? null,
         }) : null;
         return userData;
     }),
@@ -49,6 +53,10 @@ export const userRouter = createTRPCRouter({
             });
 
             const { firstName, lastName, displayName } = getUserName(authUser);
+            const authAvatarUrl: string | undefined =
+                authUser.user_metadata.avatar_url ||
+                authUser.user_metadata.avatarUrl ||
+                authUser.user_metadata.picture;
 
             const userData = {
                 id: input.id,
@@ -56,7 +64,7 @@ export const userRouter = createTRPCRouter({
                 lastName: input.lastName ?? lastName,
                 displayName: input.displayName ?? displayName,
                 email: input.email ?? authUser.email,
-                avatarUrl: input.avatarUrl ?? authUser.user_metadata.avatarUrl,
+                avatarUrl: input.avatarUrl ?? authAvatarUrl ?? null,
             };
 
             const [user] = await ctx.db

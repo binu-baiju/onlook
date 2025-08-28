@@ -175,9 +175,12 @@ export const projectRouter = createTRPCRouter({
                 with: {
                     project: true,
                 },
-                limit: input?.limit,
+                // Fetch all, then sort by project.updatedAt and finally apply limit
             });
-            return fetchedUserProjects.map((userProject) => toProject(userProject.project)).sort((a, b) => new Date(b.metadata.updatedAt).getTime() - new Date(a.metadata.updatedAt).getTime());
+            const sorted = fetchedUserProjects
+                .map((userProject) => toProject(userProject.project))
+                .sort((a, b) => new Date(b.metadata.updatedAt).getTime() - new Date(a.metadata.updatedAt).getTime());
+            return typeof input?.limit === 'number' ? sorted.slice(0, input.limit) : sorted;
         }),
     get: protectedProcedure
         .input(z.object({ projectId: z.string() }))
